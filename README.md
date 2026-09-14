@@ -1,5 +1,10 @@
 # Matriz de Relevo
 
+### → [oviniciusramosp.github.io/matriz-de-relevo](https://oviniciusramosp.github.io/matriz-de-relevo/)
+
+Abra o link, solte um SVG, baixe o STL. Nada é enviado para servidor nenhum: o arquivo
+nunca sai do seu navegador.
+
 Gerador de **matriz de relevo seco** (*dry embossing*) a partir de um SVG: a ferramenta lê o vetor,
 monta a placa macho (alto-relevo) e a placa fêmea (cavidade espelhada, com a folga da espessura do
 papel), fecha as duas com dobradiça ou ímãs e exporta STL / 3MF prontos para imprimir.
@@ -15,10 +20,10 @@ python3 -m http.server 8000
 # http://localhost:8000
 ```
 
-## Publicar no GitHub Pages
+## Publicar sua própria cópia
 
-1. `Settings → Pages → Source: Deploy from a branch → main / (root)`
-2. Pronto. `index.html` está na raiz e todos os caminhos são relativos.
+Fork → `Settings → Pages → Source: Deploy from a branch → main / (root)`. `index.html` está na
+raiz e todos os caminhos são relativos, então não há build nem configuração.
 
 Único requisito de rede em produção: `cdn.jsdelivr.net` (three.js) e `fonts.googleapis.com`.
 
