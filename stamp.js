@@ -62,44 +62,15 @@ export function hingeSegments(plateHeight, hingeCount) {
   return segs;
 }
 
-/** Contorno da placa com o lado da dobradiça “ameado” (tabs onde ficam os nós). */
-function plateOutline(side, s, segs) {
+/** Contorno da placa: cantos arredondados do lado externo, borda reta no lado da dobradiça. */
+function plateOutline(side, s) {
   const { plateWidth: W, plateHeight: H, cornerRadius: r, thickness: t } = s;
-  const R = t / 2;
-  const boreR = Math.min(0.975, R - 0.8);
-  const near = R + 0.3;          // borda recuada (folga de dobra)
-  const tab = boreR + 0.55;      // borda avançada onde há nó da dobradiça
+  const near = t / 2 + 0.3;              // folga de giro em relação ao eixo
   const sgn = side === 'A' ? -1 : 1;
-  const far = sgn * (near + W);
-  const pts = [];
-  // borda da dobradiça, de baixo para cima
-  const prof = [];
-  prof.push({ y: -H / 2, x: sgn * near });
-  for (const sg of segs.filter((x) => x.plate === side)) {
-    prof.push({ y: sg.y0, x: sgn * near }, { y: sg.y0, x: sgn * tab }, { y: sg.y1, x: sgn * tab }, { y: sg.y1, x: sgn * near });
-  }
-  prof.push({ y: H / 2, x: sgn * near });
-  for (const p of prof) pts.push({ x: p.x, y: p.y });
-  // canto superior externo -> borda externa -> canto inferior externo
-  const rr = Math.max(0, Math.min(r, Math.min(W, H) / 2));
-  const arc = (cx, cy, a0, a1) => {
-    for (let i = 0; i <= 10; i++) {
-      const a = a0 + (a1 - a0) * (i / 10);
-      pts.push({ x: cx + rr * Math.cos(a), y: cy + rr * Math.sin(a) });
-    }
-  };
-  if (sgn < 0) {
-    pts.push({ x: far + rr, y: H / 2 });
-    arc(far + rr, H / 2 - rr, Math.PI / 2, Math.PI);
-    arc(far + rr, -H / 2 + rr, Math.PI, 1.5 * Math.PI);
-    pts.push({ x: sgn * near, y: -H / 2 });
-  } else {
-    pts.push({ x: far - rr, y: H / 2 });
-    arc(far - rr, H / 2 - rr, Math.PI / 2, 0);
-    arc(far - rr, -H / 2 + rr, 0, -Math.PI / 2);
-    pts.push({ x: sgn * near, y: -H / 2 });
-  }
-  return ensureCCW(clean(pts));
+  const x0 = sgn < 0 ? -(near + W) : near;
+  const rr = [sgn < 0 ? r : 0, sgn < 0 ? 0 : r, sgn < 0 ? 0 : r, sgn < 0 ? r : 0];
+  // rr = [sup dir, sup esq, inf esq, inf dir] — arredonda só o lado externo
+  return ensureCCW(roundedRect(x0, -H / 2, W, H, rr, 10));
 }
 
 function plainOutline(side, s) {
@@ -121,12 +92,26 @@ function magnetPockets(side, s) {
   return out;
 }
 
-/** Nó da dobradiça: cilindro furado com eixo em Y, centrado em (x=0, z=t/2). */
-function knuckle(s, y0, y1) {
+/** Perfil do nó: barril + orelha retangular para o lado da própria placa, com furo do pino.
+    A orelha é o que solda o nó à placa — sem ela o barril fica preso por uma lasca. */
+function knuckleProfile(R, boreR, leaf, sgn, seg = 44) {
+  const pts = [];
+  for (let i = 0; i <= seg; i++) {            // semicírculo do lado oposto à orelha
+    const a = -Math.PI / 2 + Math.PI * (i / seg);
+    pts.push({ x: -sgn * R * Math.cos(a), y: R * Math.sin(a) });
+  }
+  pts.push({ x: sgn * leaf, y: R });          // orelha: topo, lateral, base
+  pts.push({ x: sgn * leaf, y: -R });
+  return { outer: ensureCCW(clean(pts)), holes: [circle(0, 0, boreR, 26)] };
+}
+
+/** Nó da dobradiça: eixo em Y, centrado em (x=0, z=t/2), soldado na placa `side`. */
+function knuckle(s, y0, y1, side) {
   const R = s.thickness / 2;
   const boreR = Math.min(0.975, R - 0.8);
+  const leaf = R + 3.5;                        // avança 3,2 mm para dentro da placa
   const m = new Mesh('hinge', COLORS.hinge);
-  prism(m, { outer: circle(0, 0, R, 40), holes: [circle(0, 0, boreR, 24)] }, 0, y1 - y0);
+  prism(m, knuckleProfile(R, boreR, leaf, side === 'A' ? -1 : 1), 0, y1 - y0);
   m.transform((p) => ({ x: p.x, y: p.z + y0, z: -p.y + s.thickness / 2 }));
   return m;
 }
@@ -145,7 +130,7 @@ export function buildStamp(inkNodes, state) {
   const femeaSide = s.swap ? 'A' : 'B';
 
   const segs = s.mode === 'hinge' ? hingeSegments(s.plateHeight, s.hingeCount) : [];
-  const outlineOf = (side) => (s.mode === 'hinge' ? plateOutline(side, s, segs) : plainOutline(side, s));
+  const outlineOf = (side) => (s.mode === 'hinge' ? plateOutline(side, s) : plainOutline(side, s));
 
   // --- tinta: normaliza, posiciona no centro da placa macho ---
   let ink = [];
@@ -195,7 +180,7 @@ export function buildStamp(inkNodes, state) {
   // --- dobradiça ---
   if (s.mode === 'hinge') {
     const h = new Mesh('dobradica', COLORS.hinge);
-    for (const sg of segs) h.merge(knuckle(s, sg.y0, sg.y1));
+    for (const sg of segs) h.merge(knuckle(s, sg.y0, sg.y1, sg.plate));
     parts.push(h);
     if (s.pin) {
       const R = t / 2;

@@ -157,9 +157,12 @@ function updateScene(res) {
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.BufferAttribute(part.toFloat32(), 3));
     g.computeVertexNormals();
+    const isHinge = part.name === 'dobradica';
     const m = new THREE.MeshStandardMaterial({
       color: new THREE.Color(colors[part.name] || '#999'),
       roughness: 0.6, metalness: 0.1, flatShading: true,
+      // a orelha do nó é coplanar com a placa: empurra o polígono para evitar z-fighting
+      polygonOffset: isHinge, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
     });
     group.add(new THREE.Mesh(g, m));
   }
@@ -481,3 +484,5 @@ rebuild();
 frame();
 tick();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (S.text.trim()) renderText(); });
+
+window.__orbit = orbit; window.__applyCam = applyCam;

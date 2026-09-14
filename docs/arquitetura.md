@@ -146,10 +146,13 @@ colineares entre contornos distintos — também passam: `watertight True` nos m
 
 ### Dobradiça gerada, não baixada
 
-O Sellomaker mescla um STL pronto. Aqui os nós são procedurais: `2·n+1` cilindros furados
-alternando entre as placas, com folga de 0,35 mm entre eles, e a borda de cada placa é **ameada** —
-avança até o eixo onde tem nó seu, recua `espessura/2 + 0,3 mm` onde tem nó da outra. O furo tem
-1,95 mm: o pino é um pedaço de filamento de 1,75 mm. Com `espessura = 4 mm`, o raio do nó é
+O Sellomaker mescla um STL pronto. Aqui os nós são procedurais: `2·n+1` nós alternando entre as
+placas, com folga de 0,35 mm entre eles. Cada nó não é só um cilindro furado — é um **barril com
+orelha**: o perfil extrudado é o semicírculo do barril unido a um retângulo da espessura cheia que
+avança 3,2 mm para dentro da própria placa. Essa orelha é o que solda o nó à placa; sem ela o barril
+fica preso por uma lasca de material com menos de meio milímetro e quebra no primeiro uso. A borda
+das placas é reta, recuada `espessura/2 + 0,3 mm` do eixo, o que dá a folga de giro. O furo tem
+1,95 mm: o pino é um pedaço de filamento de 1,75 mm. Com `espessura = 4 mm`, o raio do barril é
 exatamente 2 mm, o que faz as duas faces de trabalho se encostarem quando a peça dobra 180°.
 
 ### Texto sem arquivo de fonte

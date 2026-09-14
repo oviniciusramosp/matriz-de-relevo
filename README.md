@@ -31,7 +31,7 @@ python3 -m http.server 8000
 - gera a fêmea espelhando no eixo da dobra e dilatando a tinta pela espessura do material
 - 4 presets de material (lata de alumínio, papel 80–120 g, vegetal, cartão 300 g), cada um com seu
   par relevo/folga
-- dobradiça procedural de 3, 5 ou 7 nós (pino = filamento de 1,75 mm) ou bolsos para 2/4 ímãs
+- dobradiça procedural de 3, 5 ou 7 nós, cada nó com orelha que solda 3,2 mm dentro da sua placa (pino = filamento de 1,75 mm), ou bolsos para 2/4 ímãs
 - texto em 10 fontes, com curvatura, convertido em contorno real
 - saída de ângulo, simplificação de curvas e aviso quando um detalhe é fino demais para a folga
 - exporta STL binário, 3MF multicolor e um zip com as partes separadas e os parâmetros usados
