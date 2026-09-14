@@ -54,7 +54,7 @@ function analyze(part) {
 
 for (const mode of ['hinge', 'magnets']) {
   console.log(`\n=== modo ${mode} ===`);
-  const r = buildStamp(nodes, { ...DEFAULTS, mode, pin: mode === 'hinge', preset: 'cartao', relief: 1.2, clearance: 0.32 });
+  const r = buildStamp(nodes, { ...DEFAULTS, mode, preset: 'cartao', relief: 1.2, clearance: 0.32 });
   for (const p of r.parts) console.log(p.name.padEnd(10), JSON.stringify(analyze(p)));
   console.log('bbox', Object.entries(r.bbox).map(([k, x]) => `${k}=${x.toFixed(2)}`).join(' '));
   console.log('avisos', r.warnings);

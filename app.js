@@ -152,7 +152,7 @@ function tick() { renderer.render(scene, camera); requestAnimationFrame(tick); }
 
 function updateScene(res) {
   group.clear();
-  const colors = { macho: getCSS('--male'), femea: getCSS('--female'), dobradica: getCSS('--line-strong'), pino: getCSS('--brass') };
+  const colors = { macho: getCSS('--male'), femea: getCSS('--female'), dobradica: getCSS('--line-strong') };
   const artColor = new THREE.Color(getCSS('--art'));
   const mk = (hex, offset) => new THREE.MeshStandardMaterial({
     color: hex instanceof THREE.Color ? hex : new THREE.Color(hex),
@@ -305,7 +305,6 @@ segment('hingeCount', 'hinge', (v) => { S.hingeCount = +v; });
 segment('magnetCount', 'mag', (v) => { S.magnetCount = +v; });
 segment('fmt', 'fmt', (v) => { S.fmt = v; });
 
-$('pin').addEventListener('change', (e) => { S.pin = e.target.checked; schedule(); });
 $('btnRot').addEventListener('click', () => { S.logoRotation = (S.logoRotation + 90) % 360; schedule(); });
 $('btnSwap').addEventListener('click', () => { S.swap = !S.swap; schedule(); });
 
@@ -383,13 +382,13 @@ function readme() {
     `material a gravar: ${PRESETS[S.preset] ? PRESETS[S.preset].label : '—'}`,
     `altura do relevo: ${nf(S.relief, 2)} mm | cavidade: ${nf(S.relief + S.zClearance, 2)} mm | folga lateral: ${nf(S.clearance, 2)} mm`,
     `placa: ${nf(S.plateWidth)} × ${nf(S.plateHeight)} × ${nf(S.thickness)} mm | canto ${nf(S.cornerRadius)} mm`,
-    `fechamento: ${S.mode === 'hinge' ? `dobradiça com ${2 * S.hingeCount + 1} nós (pino de 1,75 mm)` : `${S.magnetCount} ímãs de ${nf(S.magnetD)} × ${nf(S.magnetH)} mm`}`,
+    `fechamento: ${S.mode === 'hinge' ? `dobradiça de ${2 * S.hingeCount + 3} nós, impressa montada` : `${S.magnetCount} ímãs de ${nf(S.magnetD)} × ${nf(S.magnetH)} mm`}`,
     '',
     'COMO IMPRIMIR',
     '1. A peça já vem deitada: imprima como está, sem suportes.',
     '2. Camada de 0,10–0,12 mm e bico de 0,4 mm (0,2 mm dá muito mais detalhe no relevo).',
     '3. 3 paredes e 25% de preenchimento bastam; PLA ou PETG.',
-    '4. Dobradiça: passe um pedaço de filamento de 1,75 mm pelos nós como pino.',
+    '4. Dobradiça: já sai articulada da mesa. Se o primeiro giro travar, force devagar para soltar as camadas.',
     S.mode === 'magnets' ? '5. Ímãs: cole na face de baixo, respeitando a polaridade entre as duas placas.' : '5. Feche a matriz com o papel no meio e pressione com firmeza.',
     '',
     'ARQUIVOS',
@@ -479,7 +478,6 @@ function syncInputs() {
     if (el) { el.value = S[key]; el.dispatchEvent(new Event('input')); }
   }
   $('txt').value = S.text || '';
-  $('pin').checked = !!S.pin;
   $('hingeOpts').style.display = S.mode === 'hinge' ? 'flex' : 'none';
   $('magnetOpts').style.display = S.mode === 'magnets' ? 'flex' : 'none';
 }

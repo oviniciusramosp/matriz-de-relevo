@@ -36,7 +36,7 @@ raiz e todos os caminhos são relativos, então não há build nem configuraçã
 - gera a fêmea espelhando no eixo da dobra e dilatando a tinta pela espessura do material
 - 4 presets de material (lata de alumínio, papel 80–120 g, vegetal, cartão 300 g), cada um com seu
   par relevo/folga
-- dobradiça procedural de 3, 5 ou 7 nós, cada nó com orelha que solda 3,2 mm dentro da sua placa, e o pino que atravessa os nós sai junto na peça (ou use filamento de 1,75 mm), ou bolsos para 2/4 ímãs
+- dobradiça procedural de 5, 7 ou 9 nós que **sai articulada da impressora**: eixo na altura da face gravada, barril de 3 mm apoiado em rampas de 45°, pino integral dentro do furo do nó vizinho — ou bolsos para 2/4 ímãs
 - texto em 10 fontes, com curvatura, convertido em contorno real
 - pré-visualização pinta o relevo e a cavidade numa cor própria, para enxergar a arte na peça
 - saída de ângulo, simplificação de curvas e aviso quando um detalhe é fino demais para a folga

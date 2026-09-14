@@ -146,14 +146,40 @@ colineares entre contornos distintos — também passam: `watertight True` nos m
 
 ### Dobradiça gerada, não baixada
 
-O Sellomaker mescla um STL pronto. Aqui os nós são procedurais: `2·n+1` nós alternando entre as
-placas, com folga de 0,35 mm entre eles. Cada nó não é só um cilindro furado — é um **barril com
-orelha**: o perfil extrudado é o semicírculo do barril unido a um retângulo da espessura cheia que
-avança 3,2 mm para dentro da própria placa. Essa orelha é o que solda o nó à placa; sem ela o barril
-fica preso por uma lasca de material com menos de meio milímetro e quebra no primeiro uso. A borda
-das placas é reta, recuada `espessura/2 + 0,3 mm` do eixo, o que dá a folga de giro. O furo tem
-1,95 mm: o pino é um pedaço de filamento de 1,75 mm. Com `espessura = 4 mm`, o raio do barril é
-exatamente 2 mm, o que faz as duas faces de trabalho se encostarem quando a peça dobra 180°.
+O Sellomaker mescla um STL pronto. Aqui os nós são procedurais, mas a **geometria é a mesma** —
+medida a partir da malha que o app deles põe em cena e reimplementada:
+
+| | valor |
+|---|---|
+| eixo de giro | `z = espessura`, na altura da face gravada |
+| raio do barril | 3,0 mm (topo da peça em `espessura + 3`) |
+| furo | R 1,75 mm, cego, 2,1 mm de profundidade em cada ponta |
+| pino integral | R 1,25 mm, 2,2 mm de avanço |
+| folga radial pino↔furo | 0,50 mm |
+| folga axial entre nós | 0,30 mm |
+| parede interna da placa | `3·√2 + 0,16` = 4,40 mm do eixo |
+| nós | 5, 7 ou 9, na proporção 1 : 2,5 : 1 : 2,5 : 1 da altura |
+
+Três coisas fazem a peça funcionar, e todas estavam erradas na primeira versão:
+
+**O eixo fica na face de cima, não no meio da placa.** Ao girar 180°, a placa B pousa exatamente
+sobre a A com as duas faces gravadas encostadas — que é onde o papel entra. Com o eixo em
+`espessura/2` as placas se atravessavam.
+
+**O barril se apoia em duas rampas de 45° tangentes a ele**, uma subindo até a parede interna da
+placa, outra descendo até a mesa. Nada no perfil passa de 45°, então imprime deitado sem suporte, e
+o barril não fica preso por uma lasca de material.
+
+**O pino é parte da peça.** Os nós de uma placa nascem maciços com um pino que já começa dentro do
+furo do nó vizinho; sai articulado da mesa, sem filamento avulso nem peça solta. A folga radial de
+0,5 mm é o que impede as camadas de soldarem.
+
+O `0,16 mm` da parede interna não é arbitrário: é a folga que sobra entre a rampa da placa B girada
+180° e a face de cima da placa A. Menos que isso e a peça não fecha.
+
+Cada nó é montado empilhando prismas (`prism`), o que deixa faces coincidentes internas — o teste
+reporta `dup` > 0 na dobradiça. Não há CSG no projeto; as faces internas ficam dentro de um único
+corpo impresso e nenhum fatiador se importa. O que importa (`unmatched`, arestas sem par) é zero.
 
 ### Texto sem arquivo de fonte
 
