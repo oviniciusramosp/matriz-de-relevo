@@ -64,3 +64,17 @@ for (const mode of ['hinge', 'magnets']) {
   fs.writeFileSync(`out-${mode}.3mf`, mf);
   console.log('stl', (stl.length / 1024).toFixed(1) + 'kB', '3mf', (mf.length / 1024).toFixed(1) + 'kB');
 }
+
+/* Regressão: anéis de área desprezível (traços que voltam sobre si mesmos, que exportadores
+   de SVG deixam no arquivo) faziam o ear clipping desistir e cuspir triângulos gigantes por
+   cima de furos reais — a falha só aparecia em certas rotações, porque depende das coordenadas. */
+{
+  const sliver = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <path d="M20 20 H180 V180 H20 Z M60 60 H140 V140 H60 Z" fill-rule="evenodd"/>
+    <path d="M100.5 150.2C100.9 150.4 101.3 150.6 101.7 150.8C101.2 150.5 100.7 150.3 100.5 150.2Z"/>
+    <path d="M40.1 30.0C40.4 30.1 40.7 30.2 41.0 30.3L40.5 30.15Z"/>
+  </svg>`;
+  const n = nestTree(parseSVG(sliver).contours).length;   // nestTree devolve todos os anéis, plano
+  console.log(`\n=== anéis degenerados ===\n3 paths, 2 deles sem área -> ${n} anéis (esperado 2: quadrado + furo)`);
+  if (n !== 2) { console.error('FALHOU: anel de área ~0 passou pelo nestTree'); process.exit(1); }
+}

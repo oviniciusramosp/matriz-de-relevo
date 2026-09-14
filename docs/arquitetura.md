@@ -181,6 +181,26 @@ Cada nó é montado empilhando prismas (`prism`), o que deixa faces coincidentes
 reporta `dup` > 0 na dobradiça. Não há CSG no projeto; as faces internas ficam dentro de um único
 corpo impresso e nenhum fatiador se importa. O que importa (`unmatched`, arestas sem par) é zero.
 
+### Anéis de área zero quebram o ear clipping
+
+`nestTree` descarta anéis com área abaixo de **1 ppm da caixa da arte**. Não é higiene: é o que
+impede uma falha visível na peça.
+
+Exportadores de SVG deixam para trás traços que voltam por cima de si mesmos — polígonos de 4 a 7
+pontos com área da ordem de 0,01 unidade num desenho de 1.130 × 1.200. Um arquivo real testado aqui
+tinha 12 deles em 26 contornos. Entregues ao `ShapeUtils.triangulateShape` como furos, o ear clipping
+não acha ponte válida, desiste daquele furo e devolve **triângulos gigantes atravessando furos de
+verdade**: no teste, 13 mm² de relevo sólido tapando o vão da barba.
+
+O sintoma enganava porque dependia das coordenadas: girar a arte 90° mudava a ordem em que as
+orelhas eram cortadas, então a falha aparecia numa rotação e sumia na outra. Com o corte em 1 ppm,
+o erro de área ficou igual nas quatro rotações (≈ 11 mm², que é só a saída de ângulo transbordando
+0,06 mm), os remendos do `sealBoundaries` caíram de 26–46 para 6–9 por placa, e o aviso de "detalhes
+muito finos" parou de disparar por causa do lixo do arquivo.
+
+O limite é relativo porque a unidade do SVG é arbitrária, e 1 ppm é mil vezes menor que o menor
+detalhe imprimível — não há risco de comer arte de verdade.
+
 ### Texto sem arquivo de fonte
 
 Não existe API de navegador para extrair contornos de glifo, e o sandbox do artifact bloqueia

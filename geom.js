@@ -272,9 +272,15 @@ export function traceField(data, w, h, thr = 128) {
 /* ---------- árvore de aninhamento (representação canônica das "tintas") ---------- */
 /** contornos -> lista plana de nós {pts, depth, children[]} (depth par = tinta, ímpar = vazio) */
 export function nestTree(contours) {
-  const items = contours
-    .map((c) => clean(Array.isArray(c) ? c : c.pts))
-    .filter((pts) => pts.length >= 3 && Math.abs(signedArea(pts)) > 1e-9)
+  const rings = contours.map((c) => clean(Array.isArray(c) ? c : c.pts)).filter((pts) => pts.length >= 3);
+  /* Anéis de área desprezível — traços que voltam por cima de si mesmos, que exportadores de SVG
+     deixam para trás — quebram o ear clipping: ele não acha ponte válida para o furo, desiste e
+     devolve triângulos gigantes atravessando furos de verdade. O limite é relativo à caixa da arte
+     (a unidade do SVG é arbitrária): 1 ppm, mil vezes menor que qualquer detalhe imprimível. */
+  const bb = bbox(rings);
+  const min = Math.max(1e-9, bb.w * bb.h * 1e-6);
+  const items = rings
+    .filter((pts) => Math.abs(signedArea(pts)) > min)
     .map((pts) => ({ pts, p: interiorPoint(pts), a: Math.abs(signedArea(pts)), children: [] }));
   for (const it of items) {
     const parents = items.filter((o) => o !== it && o.a > it.a && pointInPolygon(it.p, o.pts));
