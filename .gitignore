@@ -1,0 +1,4 @@
+node_modules/
+*.stl
+*.3mf
+*.zip

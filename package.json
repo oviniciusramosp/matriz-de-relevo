@@ -1,0 +1,15 @@
+{
+  "name": "matriz-de-relevo",
+  "version": "1.0.0",
+  "description": "Gerador de matriz de relevo seco (macho + fêmea) a partir de um SVG — 100% no navegador",
+  "type": "module",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "test": "node test/run.mjs"
+  },
+  "devDependencies": {
+    "@xmldom/xmldom": "^0.9.0",
+    "three": "0.150.1"
+  },
+  "license": "MIT"
+}
