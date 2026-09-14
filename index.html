@@ -14,7 +14,7 @@
   --ink:#171A1D; --muted:#6C6F73; --line:#DDD7CB; --line-strong:#C6BFB0;
   --brass:#96691A; --brass-soft:#EFE2C6; --brass-ink:#6B4A0F;
   --warn:#A24A1E; --warn-soft:#F7E7DE;
-  --male:#B4842F; --female:#4E5C66;
+  --male:#B4842F; --female:#4E5C66; --art:#0F6F64;
   --bed:#EDE8DF;
   --r:3px;
   --fs-xs:11px; --fs-sm:12.5px; --fs-md:14px; --fs-lg:17px; --fs-xl:22px;
@@ -26,7 +26,7 @@
     --ink:#E9E5DC; --muted:#989CA1; --line:#2C3137; --line-strong:#3B424A;
     --brass:#D7A041; --brass-soft:#3A2E17; --brass-ink:#F0CC86;
     --warn:#E08A5B; --warn-soft:#3A241A;
-    --male:#C08F36; --female:#6E7B87;
+    --male:#C08F36; --female:#6E7B87; --art:#4ACFB9;
     --bed:#15181B;
   }
 }
@@ -35,7 +35,7 @@
   --ink:#E9E5DC; --muted:#989CA1; --line:#2C3137; --line-strong:#3B424A;
   --brass:#D7A041; --brass-soft:#3A2E17; --brass-ink:#F0CC86;
   --warn:#E08A5B; --warn-soft:#3A241A;
-  --male:#C08F36; --female:#6E7B87;
+  --male:#C08F36; --female:#6E7B87; --art:#4ACFB9;
   --bed:#15181B;
 }
 *{box-sizing:border-box}
@@ -217,7 +217,7 @@ details>div{display:flex;flex-direction:column;gap:12px;padding-top:12px}
           <button data-hinge="2">5 nós</button>
           <button data-hinge="3">7 nós</button>
         </div>
-        <label class="check" style="margin-top:8px"><input type="checkbox" id="pin"> Gerar pino impresso (senão, use filamento 1,75 mm)</label>
+        <label class="check" style="margin-top:8px"><input type="checkbox" id="pin" checked> Gerar o pino impresso junto (alternativa: filamento de 1,75 mm)</label>
       </div>
       <div id="magnetOpts" style="display:none;flex-direction:column;gap:12px">
         <div class="seg small" id="magnetCount" role="group">
@@ -305,6 +305,7 @@ details>div{display:flex;flex-direction:column;gap:12px;padding-top:12px}
     <div class="legend">
       <span><i style="background:var(--male)"></i>macho (relevo)</span>
       <span><i style="background:var(--female)"></i>fêmea (cavidade)</span>
+      <span><i style="background:var(--art)"></i>sua arte</span>
     </div>
     <div class="busy" id="busy">calculando…</div>
     <div class="hud">

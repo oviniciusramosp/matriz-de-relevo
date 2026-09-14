@@ -187,6 +187,7 @@ export function buildPlate(o) {
   const roots = nodes.filter((n) => n.depth === 0);
   mesh.cap(triangulate(outline, roots.map((n) => ensureCW(n.pts))), t, true);
 
+  const inkRanges = [];
   const visit = (n) => {
     const even = n.depth % 2 === 0;
     const ring = even ? ensureCCW(clean(n.pts)) : ensureCW(clean(n.pts));
@@ -197,9 +198,11 @@ export function buildPlate(o) {
     if (even) {
       const kidRings = kids.map((k) => ensureCW(clean(k.pts)));
       const kidRingsTop = draft ? kidRings.map((r) => safeOffset(r, draft)) : kidRings;
+      const mark = mesh.count;
       mesh.cap(triangulate(ringTop, kidRingsTop), zFace, true);
       mesh.wall(ring, t, ringTop, zTop);
       kids.forEach((k, i) => mesh.wall(kidRings[i], t, kidRingsTop[i], zTop));
+      inkRanges.push([mark, mesh.count]);   // só as faces que realmente sobem/descem
       // as paredes dos filhos já foram emitidas acima; desce para os netos
       kids.forEach((k) => (k.children || []).forEach(visit));
       kids.forEach((k) => {
@@ -209,6 +212,7 @@ export function buildPlate(o) {
     }
   };
   roots.forEach(visit);
+  mesh.ink = inkRanges.sort((a, b) => a[0] - b[0]);
   mesh.patched = sealBoundaries(mesh);
   return mesh;
 }

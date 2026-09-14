@@ -22,7 +22,7 @@ export const DEFAULTS = {
   padding: 4,
   mode: 'hinge',
   hingeCount: 1,
-  pin: false,
+  pin: true,
   magnetD: 6,
   magnetH: 3,
   magnetCount: 4,
@@ -186,9 +186,15 @@ export function buildStamp(inkNodes, state) {
       const R = t / 2;
       const boreR = Math.min(0.975, R - 0.8);
       const span = s.plateHeight * 0.92;
+      const L = span + 2;                       // sobra 1 mm de cada lado para puxar
+      const rod = boreR - 0.15;                 // 0,30 mm de folga no diâmetro
       const pin = new Mesh('pino', COLORS.pin);
-      prism(pin, { outer: circle(0, 0, boreR - 0.12, 28), holes: [] }, 0, span);
-      pin.transform((p) => ({ x: p.x + s.thickness / 2 + s.plateWidth + 8, y: p.z - span / 2, z: -p.y + boreR }));
+      prism(pin, { outer: circle(0, 0, rod, 30), holes: [] }, 0, L, 0.18); // ponta afunilada
+      pin.transform((p) => ({
+        x: p.x + R + s.plateWidth + 6,
+        y: p.z - L / 2,
+        z: -p.y + rod,                           // deitado na mesa
+      }));
       parts.push(pin);
     }
   }

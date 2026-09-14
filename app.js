@@ -153,18 +153,32 @@ function tick() { renderer.render(scene, camera); requestAnimationFrame(tick); }
 function updateScene(res) {
   group.clear();
   const colors = { macho: getCSS('--male'), femea: getCSS('--female'), dobradica: getCSS('--line-strong'), pino: getCSS('--brass') };
+  const artColor = new THREE.Color(getCSS('--art'));
+  const mk = (hex, offset) => new THREE.MeshStandardMaterial({
+    color: hex instanceof THREE.Color ? hex : new THREE.Color(hex),
+    roughness: 0.6, metalness: 0.1, flatShading: true,
+    polygonOffset: offset, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
+  });
   for (const part of res.parts) {
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.BufferAttribute(part.toFloat32(), 3));
     g.computeVertexNormals();
-    const isHinge = part.name === 'dobradica';
-    const m = new THREE.MeshStandardMaterial({
-      color: new THREE.Color(colors[part.name] || '#999'),
-      roughness: 0.6, metalness: 0.1, flatShading: true,
-      // a orelha do nó é coplanar com a placa: empurra o polígono para evitar z-fighting
-      polygonOffset: isHinge, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
-    });
-    group.add(new THREE.Mesh(g, m));
+    const body = mk(colors[part.name] || '#999', part.name === 'dobradica');
+    let m;
+    if (part.ink && part.ink.length) {
+      // separa as faces do relevo/cavidade para destacar a arte na pré-visualização
+      let cur = 0;
+      for (const [a, b] of part.ink) {
+        if (a > cur) g.addGroup(cur * 3, (a - cur) * 3, 0);
+        g.addGroup(a * 3, (b - a) * 3, 1);
+        cur = b;
+      }
+      if (part.count > cur) g.addGroup(cur * 3, (part.count - cur) * 3, 0);
+      m = new THREE.Mesh(g, [body, mk(artColor, false)]);
+    } else {
+      m = new THREE.Mesh(g, body);
+    }
+    group.add(m);
   }
 }
 function frame() {
